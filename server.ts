@@ -1,6 +1,17 @@
 import express from "express";
 import cors from 'cors';
+import mongoose from 'mongoose';
+import { UserModel } from "./database";
+import bcrypt from 'bcryptjs';
+
+
+const dotenv = require('dotenv').config();
 const app = express();
+
+
+
+//connect to db
+mongoose.connect(`${process.env.DB_URL}`);
 
 //Middlewares
 app.use(express.json());
@@ -8,16 +19,22 @@ app.use(cors());
 
 //requests
 app.get('/', (req, res)=> {
-    res.send("default message");
+    res.send("hello");
+
 });
 
-app.post('/register', (req, res) => {
-    const {username, password} = req.body;
-    console.log(req.body);
-    
+
+
+app.post('/register', async (req, res) => {
+    const {password, email} = req.body;
+
+    const user = await UserModel.create({
+        email,
+        password: bcrypt.hashSync(password)
+    });
+
     res.json({
-        username,
-        password
+        user
     });
 })
 
