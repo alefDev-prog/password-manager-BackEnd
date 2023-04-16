@@ -38,7 +38,18 @@ app.post('/register', (req, res) => __awaiter(void 0, void 0, void 0, function* 
         user
     });
 }));
+app.post('/login', (req, res) => __awaiter(void 0, void 0, void 0, function* () {
+    const { email, password } = req.body;
+    const user = yield database_1.UserModel.findOne({ email });
+    if (user) {
+        const CorrectPass = bcryptjs_1.default.compareSync(password, user.password);
+        CorrectPass ? res.json('Password OK') : res.json('Password incorrect');
+    }
+    else {
+        res.json('No matches');
+    }
+}));
 //port
-app.listen(5000, () => {
+app.listen(process.env.PORT, () => {
     console.log("Server listening on port 5000");
 });

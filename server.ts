@@ -13,6 +13,8 @@ const app = express();
 //connect to db
 mongoose.connect(`${process.env.DB_URL}`);
 
+
+
 //Middlewares
 app.use(express.json());
 app.use(cors());
@@ -39,10 +41,27 @@ app.post('/register', async (req, res) => {
 })
 
 
+app.post('/login', async (req, res) => {
+    const {email, password} = req.body;
+    const user = await UserModel.findOne({email});
+    if(user) {
+        const CorrectPass: boolean = bcrypt.compareSync(password, user.password);
+        CorrectPass ? 
+        res.status(202).json('Password OK') 
+        :
+        res.status(406).json('Password incorrect');
+
+    }
+    else {
+        res.status(400).json('No matches');
+    }
+})
+
+
 
 
 //port
-app.listen(5000, ():void => {
+app.listen(process.env.PORT, ():void => {
     console.log("Server listening on port 5000");
 });
 
