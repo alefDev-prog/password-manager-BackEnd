@@ -16,29 +16,36 @@ const { DB_URI, SESSION_SECRET, PORT, SESSION_NAME } = process.env;
 //connect to db
 mongoose_1.default.connect(`${DB_URI}`);
 //Middlewares
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000/');
+    next();
+});
 app.use(express_1.default.json());
-app.use((0, cors_1.default)());
+app.use((0, cors_1.default)({
+    origin: "http://localhost:3000",
+    credentials: true
+}));
 app.use((0, express_session_1.default)({
     name: `${SESSION_NAME}`,
     secret: `${SESSION_SECRET}`,
     saveUninitialized: false,
     resave: false,
     cookie: {
-        maxAge: 1,
-        sameSite: true
+        maxAge: 10000000000000,
+        sameSite: false
     }
 }));
-function isAuthenticated(req, res, next) {
-    if (!req.session.user) {
-        res.json("Not authenticated");
-    }
-}
 //requests
 app.get('/', (req, res) => {
     res.send("hello");
 });
-app.get('/data', isAuthenticated, (req, res) => {
-    res.json("You are authenticated");
+app.get('/data', (req, res) => {
+    console.log(req.session);
+    if (!req.session.user)
+        console.log("not ok");
+    else
+        console.log("authenticated");
+    res.send("done");
 });
 app.post('/register', async (req, res) => {
     const { password, email } = req.body;
@@ -56,8 +63,9 @@ app.post('/login', async (req, res) => {
     if (user) {
         const CorrectPass = bcryptjs_1.default.compareSync(password, user.password);
         if (CorrectPass) {
-            //store session
             req.session.user = user._id;
+            await req.session.save();
+            console.log(req.session.user);
             res
                 .status(202)
                 .json('Password OK');

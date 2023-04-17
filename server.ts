@@ -7,8 +7,11 @@ import session from 'express-session';
 
 
 
+
+
 const dotenv = require('dotenv').config();
 const app = express();
+
 
 
 //TS
@@ -37,8 +40,18 @@ mongoose.connect(`${DB_URI}`);
 
 
 //Middlewares
+
+app.use((req, res, next) => {
+    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000/');
+    next();
+  });
+
+
 app.use(express.json());
-app.use(cors());
+app.use(cors({
+    origin:"http://localhost:3000",
+    credentials: true
+}));
 
 app.use(session({
     name: `${SESSION_NAME}`,
@@ -46,18 +59,12 @@ app.use(session({
     saveUninitialized: false,
     resave: false,
     cookie: {
-        maxAge: 1,
-        sameSite: true
+        maxAge: 10000000000000,
+        sameSite: false
     }
     
 
-}))
-
-function isAuthenticated(req: any, res: any, next: any) {
-    if(!req.session.user) {
-        res.json("Not authenticated")
-    }
-}
+}));
 
 
 
@@ -68,9 +75,14 @@ app.get('/', (req, res)=> {
 });
 
 
-app.get('/data', isAuthenticated, (req, res) => {
-    res.json("You are authenticated");
+app.get('/data', (req, res) => {
+    console.log(req.session);
+    if(!req.session.user) console.log("not ok")
+    else console.log("authenticated");
+
+    res.send("done");
 })
+
 
 app.post('/register', async (req, res) => {
     const {password, email} = req.body;
@@ -94,9 +106,13 @@ app.post('/login', async (req, res) => {
         const CorrectPass: boolean = bcrypt.compareSync(password, user.password);
         if(CorrectPass){ 
             
-
-            //store session
+            
             req.session.user = user._id;
+          
+
+            await req.session.save();
+
+            console.log(req.session.user);
 
             res
             .status(202)
