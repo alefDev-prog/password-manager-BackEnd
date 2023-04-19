@@ -61,9 +61,15 @@ app.use(session({
     cookie: {
         sameSite: false
     }
-    
-
 }));
+
+/*function isAuthenticated(req:any, res:any, next:any) {
+    if(!req.session.user) {
+        req.error = new Error("Not authenticated");
+    }
+    else console.log("authenticated");
+    next();
+}*/
 
 
 
@@ -74,11 +80,14 @@ app.get('/', (req, res)=> {
 });
 
 
-app.get('/data', (req, res) => {
-    console.log(req.session);
-    if(!req.session.user) console.log("not ok")
-    else console.log("authenticated");
+app.get('/data', async (req, res) => {
 
+
+    const personId = req.query.id;
+
+    const info = await UserModel.findById({_id:personId});
+    console.log(info);
+    
     res.send("done");
 })
 
@@ -115,7 +124,7 @@ app.post('/login', async (req, res) => {
 
             res
             .status(202)
-            .json('Password OK') 
+            .json(user._id); 
         }
         else {
             res.status(406).json('Password incorrect');
@@ -126,7 +135,16 @@ app.post('/login', async (req, res) => {
     else {
         res.status(400).json('No matches');
     }
+});
+
+
+
+app.post('/logout', (req, res) => {
+    req.session.destroy(err => {if (err) console.log(err)});
+    res.clearCookie(`${SESSION_NAME}`);
+    res.json("cleared cookie");
 })
+
 
 
 

@@ -34,16 +34,21 @@ app.use((0, express_session_1.default)({
         sameSite: false
     }
 }));
+/*function isAuthenticated(req:any, res:any, next:any) {
+    if(!req.session.user) {
+        req.error = new Error("Not authenticated");
+    }
+    else console.log("authenticated");
+    next();
+}*/
 //requests
 app.get('/', (req, res) => {
     res.send("hello");
 });
-app.get('/data', (req, res) => {
-    console.log(req.session);
-    if (!req.session.user)
-        console.log("not ok");
-    else
-        console.log("authenticated");
+app.get('/data', async (req, res) => {
+    const personId = req.query.id;
+    const info = await database_1.UserModel.findById({ _id: personId });
+    console.log(info);
     res.send("done");
 });
 app.post('/register', async (req, res) => {
@@ -64,10 +69,10 @@ app.post('/login', async (req, res) => {
         if (CorrectPass) {
             req.session.user = user._id;
             await req.session.save();
-            console.log(req.session.user)
+            console.log(req.session.user);
             res
                 .status(202)
-                .json('Password OK');
+                .json(user._id);
         }
         else {
             res.status(406).json('Password incorrect');
@@ -76,6 +81,12 @@ app.post('/login', async (req, res) => {
     else {
         res.status(400).json('No matches');
     }
+});
+app.post('/logout', (req, res) => {
+    req.session.destroy(err => { if (err)
+        console.log(err); });
+    res.clearCookie(`${SESSION_NAME}`);
+    res.json("cleared cookie");
 });
 //port
 app.listen(PORT, () => {
