@@ -31,7 +31,6 @@ app.use((0, express_session_1.default)({
     saveUninitialized: false,
     resave: false,
     cookie: {
-        maxAge: 10000000000000,
         sameSite: false
     }
 }));
@@ -65,7 +64,7 @@ app.post('/login', async (req, res) => {
         if (CorrectPass) {
             req.session.user = user._id;
             await req.session.save();
-            console.log(req.session.user);
+            console.log(req.session.user)
             res
                 .status(202)
                 .json('Password OK');
