@@ -37,25 +37,22 @@ app.use((0, express_session_1.default)({
 function isAuthenticated(req, res, next) {
     if (!req.session.user) {
         console.log("Not authenticated");
+        res.json("Not authenticated");
     }
-    else
+    else {
         console.log("authenticated");
-    next();
+        next();
+    }
 }
 //requests
 app.get('/', (req, res) => {
     res.send("hello");
 });
-app.get('/data', async (req, res) => {
-    if (!req.session.user) {
-        console.log("Not authenticated");
-    }
-    else
-        console.log("authenticated");
+app.get('/data', isAuthenticated, async (req, res) => {
     const personId = req.query.id;
     console.log(personId);
-    //const info = await UserModel.findById({_id:personId});
-    //console.log(info);
+    const info = await database_1.UserModel.findById({ _id: personId });
+    console.log(info);
     res.send("done");
 });
 app.post('/register', async (req, res) => {

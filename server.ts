@@ -66,9 +66,12 @@ app.use(session({
 function isAuthenticated(req:any, res:any, next:any) {
     if(!req.session.user) {
         console.log("Not authenticated");
+        res.json("Not authenticated");
     }
-    else console.log("authenticated");
-    next();
+    else{
+        console.log("authenticated");
+        next();
+    } 
 }
 
 
@@ -80,17 +83,14 @@ app.get('/', (req, res)=> {
 });
 
 
-app.get('/data' ,async (req, res) => {
-    if(!req.session.user) {
-        console.log("Not authenticated");
-    }
-    else console.log("authenticated");
+app.get('/data',isAuthenticated,async (req, res) => {
+    
 
     const personId = req.query.id;
     console.log(personId);
 
-    //const info = await UserModel.findById({_id:personId});
-    //console.log(info);
+    const info = await UserModel.findById({_id:personId});
+    console.log(info);
     
     res.send("done");
 })
