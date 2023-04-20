@@ -92,6 +92,20 @@ app.post('/logout', isAuthenticated, (req, res) => {
     res.clearCookie(`${SESSION_NAME}`);
     res.json("cleared cookie");
 });
+app.post('/add', isAuthenticated, async (req, res) => {
+    const { newAccount, newPass, userId } = req.body;
+    console.log(newAccount);
+    console.log(userId);
+    try {
+        const user = await database_1.UserModel.findById({ _id: userId });
+        user === null || user === void 0 ? void 0 : user.account.push({ AccountName: newAccount, AccountPassword: newPass });
+        user === null || user === void 0 ? void 0 : user.save();
+    }
+    catch (err) {
+        console.log(err);
+    }
+    res.json("All OK");
+});
 //port
 app.listen(PORT, () => {
     console.log("Server listening on port 5000");

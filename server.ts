@@ -150,6 +150,21 @@ app.post('/logout', isAuthenticated, (req, res) => {
     res.json("cleared cookie");
 })
 
+app.post('/add', isAuthenticated, async (req, res) => {
+    const {newAccount, newPass, userId} = req.body;
+    console.log(newAccount);
+    console.log(userId);
+    try {
+        const user = await UserModel.findById({_id:userId});
+        user?.account.push({AccountName:newAccount, AccountPassword: newPass});
+        user?.save();
+    }catch(err) {
+        console.log(err);
+    }
+
+    res.json("All OK");
+})
+
 
 
 
