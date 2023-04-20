@@ -9,10 +9,13 @@ const mongoose_1 = __importDefault(require("mongoose"));
 const database_1 = require("./database");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const express_session_1 = __importDefault(require("express-session"));
+const cryptr_1 = __importDefault(require("cryptr"));
 const dotenv = require('dotenv').config();
 const app = (0, express_1.default)();
 //env variables
-const { DB_URI, SESSION_SECRET, PORT, SESSION_NAME } = process.env;
+const { DB_URI, SESSION_SECRET, PORT, SESSION_NAME, CRYPT_SECRET } = process.env;
+//Encryption
+const cryptr = new cryptr_1.default(`${CRYPT_SECRET}`);
 //connect to db
 mongoose_1.default.connect(`${DB_URI}`);
 //Middlewares
@@ -98,7 +101,10 @@ app.post('/add', isAuthenticated, async (req, res) => {
     console.log(userId);
     try {
         const user = await database_1.UserModel.findById({ _id: userId });
-        user === null || user === void 0 ? void 0 : user.account.push({ AccountName: newAccount, AccountPassword: newPass });
+        user === null || user === void 0 ? void 0 : user.account.push({
+            AccountName: newAccount,
+            AccountPassword: cryptr.encrypt(newPass)
+        });
         user === null || user === void 0 ? void 0 : user.save();
     }
     catch (err) {

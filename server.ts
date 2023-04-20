@@ -4,6 +4,8 @@ import mongoose from 'mongoose';
 import { UserModel } from "./database";
 import bcrypt from 'bcryptjs';
 import session from 'express-session';
+import Cryptr from "cryptr";
+
 
 
 
@@ -29,8 +31,12 @@ const {
     DB_URI,
     SESSION_SECRET,
     PORT,
-    SESSION_NAME
+    SESSION_NAME,
+    CRYPT_SECRET
 } = process.env;
+
+//Encryption
+const cryptr = new Cryptr(`${CRYPT_SECRET}`);
 
 
 
@@ -156,7 +162,10 @@ app.post('/add', isAuthenticated, async (req, res) => {
     console.log(userId);
     try {
         const user = await UserModel.findById({_id:userId});
-        user?.account.push({AccountName:newAccount, AccountPassword: newPass});
+        user?.account.push({
+            AccountName:newAccount,
+            AccountPassword: cryptr.encrypt(newPass)
+        });
         user?.save();
     }catch(err) {
         console.log(err);
