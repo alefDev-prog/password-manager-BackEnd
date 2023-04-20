@@ -34,21 +34,28 @@ app.use((0, express_session_1.default)({
         sameSite: false
     }
 }));
-/*function isAuthenticated(req:any, res:any, next:any) {
-    if(!req.session.user) {
-        req.error = new Error("Not authenticated");
+function isAuthenticated(req, res, next) {
+    if (!req.session.user) {
+        console.log("Not authenticated");
     }
-    else console.log("authenticated");
+    else
+        console.log("authenticated");
     next();
-}*/
+}
 //requests
 app.get('/', (req, res) => {
     res.send("hello");
 });
 app.get('/data', async (req, res) => {
+    if (!req.session.user) {
+        console.log("Not authenticated");
+    }
+    else
+        console.log("authenticated");
     const personId = req.query.id;
-    const info = await database_1.UserModel.findById({ _id: personId });
-    console.log(info);
+    console.log(personId);
+    //const info = await UserModel.findById({_id:personId});
+    //console.log(info);
     res.send("done");
 });
 app.post('/register', async (req, res) => {
@@ -82,7 +89,7 @@ app.post('/login', async (req, res) => {
         res.status(400).json('No matches');
     }
 });
-app.post('/logout', (req, res) => {
+app.post('/logout', isAuthenticated, (req, res) => {
     req.session.destroy(err => { if (err)
         console.log(err); });
     res.clearCookie(`${SESSION_NAME}`);

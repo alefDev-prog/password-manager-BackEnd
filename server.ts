@@ -63,13 +63,13 @@ app.use(session({
     }
 }));
 
-/*function isAuthenticated(req:any, res:any, next:any) {
+function isAuthenticated(req:any, res:any, next:any) {
     if(!req.session.user) {
-        req.error = new Error("Not authenticated");
+        console.log("Not authenticated");
     }
     else console.log("authenticated");
     next();
-}*/
+}
 
 
 
@@ -80,13 +80,17 @@ app.get('/', (req, res)=> {
 });
 
 
-app.get('/data', async (req, res) => {
-
+app.get('/data' ,async (req, res) => {
+    if(!req.session.user) {
+        console.log("Not authenticated");
+    }
+    else console.log("authenticated");
 
     const personId = req.query.id;
+    console.log(personId);
 
-    const info = await UserModel.findById({_id:personId});
-    console.log(info);
+    //const info = await UserModel.findById({_id:personId});
+    //console.log(info);
     
     res.send("done");
 })
@@ -139,7 +143,7 @@ app.post('/login', async (req, res) => {
 
 
 
-app.post('/logout', (req, res) => {
+app.post('/logout', isAuthenticated, (req, res) => {
     req.session.destroy(err => {if (err) console.log(err)});
     res.clearCookie(`${SESSION_NAME}`);
     res.json("cleared cookie");
