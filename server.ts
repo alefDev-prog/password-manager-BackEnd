@@ -91,8 +91,9 @@ app.get('/data',isAuthenticated,async (req, res) => {
 
     const info = await UserModel.findById({_id:personId});
     console.log(info);
+
     
-    res.send("done");
+    res.json(info);
 })
 
 

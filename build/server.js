@@ -53,7 +53,7 @@ app.get('/data', isAuthenticated, async (req, res) => {
     console.log(personId);
     const info = await database_1.UserModel.findById({ _id: personId });
     console.log(info);
-    res.send("done");
+    res.json(info);
 });
 app.post('/register', async (req, res) => {
     const { password, email } = req.body;
