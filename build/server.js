@@ -112,6 +112,31 @@ app.post('/add', isAuthenticated, async (req, res) => {
     }
     res.json("All OK");
 });
+app.post('/getpass', isAuthenticated, async (req, res) => {
+    const { userId, accountId } = req.body;
+    console.log(userId);
+    console.log(accountId);
+    let password;
+    try {
+        const user = await database_1.UserModel.findById({
+            _id: userId,
+            account: { _id: accountId }
+        });
+        const accounts = user === null || user === void 0 ? void 0 : user.account;
+        if (accounts != null && accounts != undefined) {
+            const response = accounts.filter(a => a._id == accountId);
+            if (response[0].AccountPassword !== undefined)
+                password = cryptr.decrypt(response[0].AccountPassword);
+        }
+    }
+    catch (err) {
+        console.log(err);
+    }
+    if (password)
+        res.json(password);
+    else
+        res.status(400);
+});
 //port
 app.listen(PORT, () => {
     console.log("Server listening on port 5000");

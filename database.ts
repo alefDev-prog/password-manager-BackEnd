@@ -8,7 +8,8 @@ const UserSchema = new Schema({
     password: {type: String, required: true},
     account: [{
         AccountName: String,
-        AccountPassword: String
+        AccountPassword: String,
+        _id: String
     }]
 });
 
