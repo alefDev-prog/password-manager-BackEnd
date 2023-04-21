@@ -150,10 +150,10 @@ app.post('/login', async (req, res) => {
 
 
 
-app.post('/logout', isAuthenticated, (req, res) => {
+app.get('/logout', isAuthenticated, (req, res) => {
     req.session.destroy(err => {if (err) console.log(err)});
     res.clearCookie(`${SESSION_NAME}`);
-    res.json("cleared cookie");
+    res.json("cleared cookie").status(200);
 })
 
 app.post('/add', isAuthenticated, async (req, res) => {
