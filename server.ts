@@ -5,6 +5,7 @@ import { UserModel } from "./database";
 import bcrypt from 'bcryptjs';
 import session from 'express-session';
 import Cryptr from "cryptr";
+//import { findAccount } from "./utils/utils";
 
 
 
@@ -175,6 +176,8 @@ app.post('/add', isAuthenticated, async (req, res) => {
     res.json("All OK");
 });
 
+
+
 app.post('/getpass', isAuthenticated, async (req, res) => {
     const {userId, accountId} = req.body;
     console.log(userId);
@@ -189,8 +192,8 @@ app.post('/getpass', isAuthenticated, async (req, res) => {
         const accounts = user?.account;
         
         if(accounts != null && accounts != undefined){
-           const response = accounts.filter(a => a._id == accountId);
-           console.log(response[0]);
+            const response = accounts.filter(a => a._id == accountId);
+
            if(response[0].AccountPassword !== undefined) password = cryptr.decrypt(response[0].AccountPassword);
         }
 
@@ -209,10 +212,17 @@ app.post('/getpass', isAuthenticated, async (req, res) => {
 
 
 app.delete('/delete', isAuthenticated, async(req, res) => {
-    //const {userId, accountId} = req.body;
+    const {userId, accountId} = req.body;
+    try {
+        await UserModel.findOneAndUpdate({_id:userId}, {$pull: {account: {_id: accountId}}});
+    } catch(err) {
+        console.log(err);
+        res.json("Not OK").status(400);
+        return;
+    }
     
 
-    res.json("All OK");
+    res.json("All OK").status(200);
 })
 
 

@@ -10,6 +10,7 @@ const database_1 = require("./database");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const express_session_1 = __importDefault(require("express-session"));
 const cryptr_1 = __importDefault(require("cryptr"));
+//import { findAccount } from "./utils/utils";
 const dotenv = require('dotenv').config();
 const app = (0, express_1.default)();
 //env variables
@@ -126,7 +127,6 @@ app.post('/getpass', isAuthenticated, async (req, res) => {
         const accounts = user === null || user === void 0 ? void 0 : user.account;
         if (accounts != null && accounts != undefined) {
             const response = accounts.filter(a => a._id == accountId);
-            console.log(response[0]);
             if (response[0].AccountPassword !== undefined)
                 password = cryptr.decrypt(response[0].AccountPassword);
         }
@@ -140,8 +140,16 @@ app.post('/getpass', isAuthenticated, async (req, res) => {
         res.status(400);
 });
 app.delete('/delete', isAuthenticated, async (req, res) => {
-    //const {userId, accountId} = req.body;
-    res.json("All OK");
+    const { userId, accountId } = req.body;
+    try {
+        await database_1.UserModel.findOneAndUpdate({ _id: userId }, { $pull: { account: { _id: accountId } } });
+    }
+    catch (err) {
+        console.log(err);
+        res.json("Not OK").status(400);
+        return;
+    }
+    res.json("All OK").status(200);
 });
 //port
 app.listen(PORT, () => {
