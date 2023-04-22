@@ -12,7 +12,11 @@ const UserSchema = new Schema({
     account: [{
             AccountName: String,
             AccountPassword: String,
-            _id: String
+            _id: {
+                type: mongoose_1.default.Schema.Types.ObjectId,
+                required: true,
+                auto: true,
+            }
         }]
 });
 exports.UserModel = mongoose_1.default.model('User', UserSchema);

@@ -9,7 +9,11 @@ const UserSchema = new Schema({
     account: [{
         AccountName: String,
         AccountPassword: String,
-        _id: String
+        _id: {
+            type: mongoose.Schema.Types.ObjectId,
+            required: true,
+            auto: true,
+        }
     }]
 });
 

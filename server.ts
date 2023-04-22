@@ -164,7 +164,8 @@ app.post('/add', isAuthenticated, async (req, res) => {
         const user = await UserModel.findById({_id:userId});
         user?.account.push({
             AccountName:newAccount,
-            AccountPassword: cryptr.encrypt(newPass)
+            AccountPassword: cryptr.encrypt(newPass),
+            _id: new mongoose.Types.ObjectId()
         });
         user?.save();
     }catch(err) {
@@ -189,6 +190,7 @@ app.post('/getpass', isAuthenticated, async (req, res) => {
         
         if(accounts != null && accounts != undefined){
            const response = accounts.filter(a => a._id == accountId);
+           console.log(response[0]);
            if(response[0].AccountPassword !== undefined) password = cryptr.decrypt(response[0].AccountPassword);
         }
 
@@ -203,6 +205,14 @@ app.post('/getpass', isAuthenticated, async (req, res) => {
 
     if(password) res.json(password);
     else res.status(400);
+});
+
+
+app.delete('/delete', isAuthenticated, async(req, res) => {
+    //const {userId, accountId} = req.body;
+    
+
+    res.json("All OK");
 })
 
 
