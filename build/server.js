@@ -59,15 +59,26 @@ app.get('/data', isAuthenticated, async (req, res) => {
     console.log(info);
     res.json(info);
 });
-app.post('/register', async (req, res) => {
+app.post('/register', async (req, res, next) => {
     const { password, username } = req.body;
-    const user = await database_1.UserModel.create({
-        username,
-        password: bcryptjs_1.default.hashSync(password)
-    });
-    res.json({
-        user
-    });
+    const checkUser = await database_1.UserModel.findOne({ username });
+    console.log(checkUser);
+    if (checkUser != null)
+        res.status(400).json("Username already taken");
+    else {
+        try {
+            const user = await database_1.UserModel.create({
+                username,
+                password: bcryptjs_1.default.hashSync(password)
+            });
+            res.status(200).json("Registered");
+            next();
+        }
+        catch (e) {
+            console.log(e);
+            res.json("Failed");
+        }
+    }
 });
 app.post('/login', async (req, res) => {
     const { username, password } = req.body;

@@ -104,17 +104,31 @@ app.get('/data',isAuthenticated,async (req, res) => {
 })
 
 
-app.post('/register', async (req, res) => {
+app.post('/register', async (req, res, next) => {
     const {password, username} = req.body;
 
-    const user = await UserModel.create({
-        username,
-        password: bcrypt.hashSync(password)
-    });
+    const checkUser = await UserModel.findOne({username});
+    console.log(checkUser);
+    if(checkUser != null) res.status(400).json("Username already taken");  
+    else {
+        try {
+            const user = await UserModel.create({
+                username,
+                password: bcrypt.hashSync(password)
+            });
+    
+            res.status(200).json("Registered");
+            next();
+            
+        } catch(e) {
+            console.log(e);
+            res.json("Failed");
+        }
+    
+    }
 
-    res.json({
-        user
-    });
+    
+    
 })
 
 
@@ -156,6 +170,7 @@ app.get('/logout', isAuthenticated, (req, res) => {
     res.clearCookie(`${SESSION_NAME}`);
     res.json("cleared cookie").status(200);
 })
+
 
 app.post('/add', isAuthenticated, async (req, res) => {
     const {newAccount, newPass, userId} = req.body;
