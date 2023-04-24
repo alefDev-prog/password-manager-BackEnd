@@ -116,8 +116,11 @@ app.post('/register', async (req, res, next) => {
                 username,
                 password: bcrypt.hashSync(password)
             });
-    
-            res.status(200).json("Registered");
+
+            req.session.user = user._id;
+            await req.session.save();
+            
+            res.status(200).json(user._id);
             next();
             
         } catch(e) {
