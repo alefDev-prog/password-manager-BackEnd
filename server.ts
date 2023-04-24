@@ -105,10 +105,10 @@ app.get('/data',isAuthenticated,async (req, res) => {
 
 
 app.post('/register', async (req, res) => {
-    const {password, email} = req.body;
+    const {password, username} = req.body;
 
     const user = await UserModel.create({
-        email,
+        username,
         password: bcrypt.hashSync(password)
     });
 
@@ -119,8 +119,8 @@ app.post('/register', async (req, res) => {
 
 
 app.post('/login', async (req, res) => {
-    const {email, password} = req.body;
-    const user = await UserModel.findOne({email});
+    const {username, password} = req.body;
+    const user = await UserModel.findOne({username});
 
     if(user) {
         const CorrectPass: boolean = bcrypt.compareSync(password, user.password);

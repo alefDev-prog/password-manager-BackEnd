@@ -60,9 +60,9 @@ app.get('/data', isAuthenticated, async (req, res) => {
     res.json(info);
 });
 app.post('/register', async (req, res) => {
-    const { password, email } = req.body;
+    const { password, username } = req.body;
     const user = await database_1.UserModel.create({
-        email,
+        username,
         password: bcryptjs_1.default.hashSync(password)
     });
     res.json({
@@ -70,8 +70,8 @@ app.post('/register', async (req, res) => {
     });
 });
 app.post('/login', async (req, res) => {
-    const { email, password } = req.body;
-    const user = await database_1.UserModel.findOne({ email });
+    const { username, password } = req.body;
+    const user = await database_1.UserModel.findOne({ username });
     if (user) {
         const CorrectPass = bcryptjs_1.default.compareSync(password, user.password);
         if (CorrectPass) {
