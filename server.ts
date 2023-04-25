@@ -5,6 +5,7 @@ import { UserModel } from "./database";
 import bcrypt from 'bcryptjs';
 import session from 'express-session';
 import Cryptr from "cryptr";
+const MongoDBStore = require('connect-mongodb-session')(session);
 //import { findAccount } from "./utils/utils";
 
 
@@ -33,7 +34,8 @@ const {
     SESSION_SECRET,
     PORT,
     SESSION_NAME,
-    CRYPT_SECRET
+    CRYPT_SECRET,
+    PASS_SESSION_URI
 } = process.env;
 
 //Encryption
@@ -43,6 +45,18 @@ const cryptr = new Cryptr(`${CRYPT_SECRET}`);
 
 //connect to db
 mongoose.connect(`${DB_URI}`);
+
+
+//sessionsDB
+
+const store = new MongoDBStore({
+    uri: `${PASS_SESSION_URI}`
+});
+
+// Catch errors
+store.on('error', function(error: Error) {
+    console.log(error);
+  });
 
 
 
@@ -63,12 +77,17 @@ app.use(cors({
 app.use(session({
     name: `${SESSION_NAME}`,
     secret: `${SESSION_SECRET}`,
-    saveUninitialized: false,
+    saveUninitialized: true,
     resave: false,
     cookie: {
-        sameSite: false
-    }
+        sameSite: false,
+        
+    },
+    store: store
 }));
+
+
+
 
 function isAuthenticated(req:any, res:any, next:any) {
     if(!req.session.user) {
