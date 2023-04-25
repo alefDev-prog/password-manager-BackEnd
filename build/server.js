@@ -74,7 +74,7 @@ app.post('/register', async (req, res, next) => {
     const checkUser = await database_1.UserModel.findOne({ username });
     console.log(checkUser);
     if (checkUser != null)
-        res.status(400).json("Username already taken");
+        res.status(409).json("Username already taken");
     else {
         try {
             const user = await database_1.UserModel.create({
@@ -174,7 +174,7 @@ app.delete('/delete', isAuthenticated, async (req, res) => {
     }
     res.json("All OK").status(200);
 });
-//port
+//server
 app.listen(PORT, () => {
-    console.log("Server listening on port 5000");
+    console.log(`Server listening on port ${PORT}`);
 });
