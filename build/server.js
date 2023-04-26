@@ -10,8 +10,8 @@ const database_1 = require("./database");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
 const express_session_1 = __importDefault(require("express-session"));
 const cryptr_1 = __importDefault(require("cryptr"));
+const authenticate_1 = __importDefault(require("./middleware/authenticate"));
 const MongoDBStore = require('connect-mongodb-session')(express_session_1.default);
-//import { findAccount } from "./utils/utils";
 const dotenv = require('dotenv').config();
 const app = (0, express_1.default)();
 //env variables
@@ -48,31 +48,18 @@ app.use((0, express_session_1.default)({
     },
     store: store
 }));
-function isAuthenticated(req, res, next) {
-    if (!req.session.user) {
-        console.log("Not authenticated");
-        res.json("Not authenticated");
-    }
-    else {
-        console.log("authenticated");
-        next();
-    }
-}
 //requests
 app.get('/', (req, res) => {
     res.send("hello");
 });
-app.get('/data', isAuthenticated, async (req, res) => {
+app.get('/data', authenticate_1.default, async (req, res) => {
     const personId = req.query.id;
-    console.log(personId);
     const info = await database_1.UserModel.findById({ _id: personId });
-    console.log(info);
     res.json(info);
 });
 app.post('/register', async (req, res, next) => {
     const { password, username } = req.body;
     const checkUser = await database_1.UserModel.findOne({ username });
-    console.log(checkUser);
     if (checkUser != null)
         res.status(409).json("Username already taken");
     else {
@@ -113,13 +100,13 @@ app.post('/login', async (req, res) => {
         res.status(400).json('No matches');
     }
 });
-app.get('/logout', isAuthenticated, (req, res) => {
+app.get('/logout', authenticate_1.default, (req, res) => {
     req.session.destroy(err => { if (err)
         console.log(err); });
     res.clearCookie(`${SESSION_NAME}`);
     res.json("cleared cookie").status(200);
 });
-app.post('/add', isAuthenticated, async (req, res) => {
+app.post('/add', authenticate_1.default, async (req, res) => {
     const { newAccount, newPass, userId } = req.body;
     console.log(newAccount);
     console.log(userId);
@@ -137,7 +124,7 @@ app.post('/add', isAuthenticated, async (req, res) => {
     }
     res.json("All OK");
 });
-app.post('/getpass', isAuthenticated, async (req, res) => {
+app.post('/getpass', authenticate_1.default, async (req, res) => {
     const { userId, accountId } = req.body;
     console.log(userId);
     console.log(accountId);
@@ -162,7 +149,7 @@ app.post('/getpass', isAuthenticated, async (req, res) => {
     else
         res.status(400);
 });
-app.delete('/delete', isAuthenticated, async (req, res) => {
+app.delete('/delete', authenticate_1.default, async (req, res) => {
     const { userId, accountId } = req.body;
     try {
         await database_1.UserModel.findOneAndUpdate({ _id: userId }, { $pull: { account: { _id: accountId } } });

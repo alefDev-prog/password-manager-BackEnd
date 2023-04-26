@@ -5,8 +5,10 @@ import { UserModel } from "./database";
 import bcrypt from 'bcryptjs';
 import session from 'express-session';
 import Cryptr from "cryptr";
+import { UserInDb } from "./TS/interfaces";
+import isAuthenticated from "./middleware/authenticate";
 const MongoDBStore = require('connect-mongodb-session')(session);
-//import { findAccount } from "./utils/utils";
+
 
 
 
@@ -44,7 +46,9 @@ const cryptr = new Cryptr(`${CRYPT_SECRET}`);
 
 
 //connect to db
+
 mongoose.connect(`${DB_URI}`);
+
 
 
 //sessionsDB
@@ -69,10 +73,14 @@ app.use((req, res, next) => {
 
 
 app.use(express.json());
+
 app.use(cors({
     origin:"http://localhost:3000",
     credentials: true
 }));
+
+
+
 
 app.use(session({
     name: `${SESSION_NAME}`,
@@ -89,16 +97,6 @@ app.use(session({
 
 
 
-function isAuthenticated(req:any, res:any, next:any) {
-    if(!req.session.user) {
-        console.log("Not authenticated");
-        res.json("Not authenticated");
-    }
-    else{
-        console.log("authenticated");
-        next();
-    } 
-}
 
 
 
@@ -113,10 +111,8 @@ app.get('/data',isAuthenticated,async (req, res) => {
     
 
     const personId = req.query.id;
-    console.log(personId);
 
-    const info = await UserModel.findById({_id:personId});
-    console.log(info);
+    const info: UserInDb | null = await UserModel.findById({_id:personId});
 
     
     res.json(info);
@@ -126,8 +122,9 @@ app.get('/data',isAuthenticated,async (req, res) => {
 app.post('/register', async (req, res, next) => {
     const {password, username} = req.body;
 
-    const checkUser = await UserModel.findOne({username});
-    console.log(checkUser);
+    const checkUser: UserInDb | null  = await UserModel.findOne({username});
+   
+
     if(checkUser != null) res.status(409).json("Username already taken");  
     else {
         try {
@@ -156,7 +153,7 @@ app.post('/register', async (req, res, next) => {
 
 app.post('/login', async (req, res) => {
     const {username, password} = req.body;
-    const user = await UserModel.findOne({username});
+    const user  = await UserModel.findOne({username});
 
     if(user) {
         const CorrectPass: boolean = bcrypt.compareSync(password, user.password);
@@ -234,11 +231,6 @@ app.post('/getpass', isAuthenticated, async (req, res) => {
            if(response[0].AccountPassword !== undefined) password = cryptr.decrypt(response[0].AccountPassword);
         }
 
-
-        
-
-
-        
     } catch(err) {
         console.log(err);
     }
