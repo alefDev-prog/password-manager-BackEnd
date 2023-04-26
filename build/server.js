@@ -49,7 +49,8 @@ app.use((0, express_session_1.default)({
     saveUninitialized: true,
     resave: false,
     cookie: {
-        sameSite: false,
+        sameSite: "none",
+        secure: true
     },
     store: store
 }));

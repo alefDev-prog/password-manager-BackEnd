@@ -90,7 +90,8 @@ app.use(session({
     saveUninitialized: true,
     resave: false,
     cookie: {
-        sameSite: false,
+        sameSite: "none",
+        secure: true
         
     },
     store: store
