@@ -6,7 +6,9 @@
   "main": "./build/server.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "devStart": "nodemon ./build/server.js"
+    "devStart": "nodemon ./build/server.js",
+    "build": "npx tsc",
+    "start": "node ./build/server.js"
   },
   "keywords": [],
   "license": "ISC",
