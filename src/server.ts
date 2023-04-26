@@ -46,9 +46,11 @@ const cryptr = new Cryptr(`${CRYPT_SECRET}`);
 
 
 //connect to db
-
-mongoose.connect(`${DB_URI}`);
-
+try {
+    mongoose.connect(`${DB_URI}`);
+} catch(err) {
+    console.log(err);
+}
 
 
 //sessionsDB

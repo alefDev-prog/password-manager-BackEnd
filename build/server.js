@@ -19,7 +19,12 @@ const { DB_URI, SESSION_SECRET, PORT, SESSION_NAME, CRYPT_SECRET, PASS_SESSION_U
 //Encryption
 const cryptr = new cryptr_1.default(`${CRYPT_SECRET}`);
 //connect to db
-mongoose_1.default.connect(`${DB_URI}`);
+try {
+    mongoose_1.default.connect(`${DB_URI}`);
+}
+catch (err) {
+    console.log(err);
+}
 //sessionsDB
 const store = new MongoDBStore({
     uri: `${PASS_SESSION_URI}`
