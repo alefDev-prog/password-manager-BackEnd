@@ -15,7 +15,7 @@ const MongoDBStore = require('connect-mongodb-session')(express_session_1.defaul
 const dotenv = require('dotenv').config();
 const app = (0, express_1.default)();
 //env variables
-const { DB_URI, SESSION_SECRET, PORT, SESSION_NAME, CRYPT_SECRET, PASS_SESSION_URI } = process.env;
+const { DB_URI, SESSION_SECRET, PORT, SESSION_NAME, CRYPT_SECRET, PASS_SESSION_URI, FRONTEND_URL } = process.env;
 //Encryption
 const cryptr = new cryptr_1.default(`${CRYPT_SECRET}`);
 //connect to db
@@ -35,16 +35,16 @@ store.on('error', function (error) {
 });
 //Middlewares
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.setHeader('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
     next();
 });
 app.use(express_1.default.json());
 app.use((0, cors_1.default)({
-    origin: "http://localhost:3000",
+    origin: `${FRONTEND_URL}`,
     credentials: true
 }));
 app.options('*', (req, res) => {
-    res.set('Access-Control-Allow-Origin', 'http://localhost:3000');
+    res.set('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
     res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
     res.set('Access-Control-Allow-Credentials', 'true');
