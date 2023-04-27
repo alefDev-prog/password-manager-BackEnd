@@ -101,7 +101,8 @@ app.use(session({
     resave: false,
     cookie: {
         sameSite: "none",
-        secure: true
+        secure: true,
+        httpOnly: true
         
     },
     store: store
