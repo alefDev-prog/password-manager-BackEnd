@@ -4,7 +4,6 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
-const cors_1 = __importDefault(require("cors"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const database_1 = require("./database");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
@@ -39,15 +38,19 @@ app.use((req, res, next) => {
     next();
 });
 app.use(express_1.default.json());
-app.use((0, cors_1.default)({
-    origin: `${FRONTEND_URL}`,
+/*
+app.use(cors({
+    origin:`${FRONTEND_URL}`,
     credentials: true
 }));
+*/
 app.options('*', (req, res) => {
+    /*
     res.set('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
     res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
     res.set('Access-Control-Allow-Credentials', 'true');
+    */
     res.status(200).send();
 });
 app.use((0, express_session_1.default)({
