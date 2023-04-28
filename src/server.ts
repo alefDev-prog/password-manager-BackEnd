@@ -70,7 +70,7 @@ store.on('error', function(error: Error) {
 //Middlewares
 
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
+    //res.setHeader('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
     next();
   });
 
@@ -101,12 +101,11 @@ app.options('*', (req, res) => {
 app.use(session({
     name: `${SESSION_NAME}`,
     secret: `${SESSION_SECRET}`,
-    saveUninitialized: true,
+    saveUninitialized: false,
     resave: false,
     cookie: {
         sameSite: false,
         secure: true,
-        httpOnly: true
         
     },
     store: store
