@@ -124,7 +124,7 @@ app.get('/', (req, res)=> {
 });
 
 
-app.get('/data',async (req, res) => {
+app.get('/data', isAuthenticated, async (req, res) => {
     
     console.log(req.session.user)
     const personId = req.query.id;
