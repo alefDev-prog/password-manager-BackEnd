@@ -4,6 +4,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const cors_1 = __importDefault(require("cors"));
 const mongoose_1 = __importDefault(require("mongoose"));
 const database_1 = require("./database");
 const bcryptjs_1 = __importDefault(require("bcryptjs"));
@@ -34,16 +35,14 @@ store.on('error', function (error) {
 });
 //Middlewares
 app.use((req, res, next) => {
-    //res.setHeader('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
+    res.setHeader('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
     next();
 });
 app.use(express_1.default.json());
-/*
-app.use(cors({
-    origin:`${FRONTEND_URL}`,
+app.use((0, cors_1.default)({
+    origin: `${FRONTEND_URL}`,
     credentials: true
 }));
-*/
 app.options('*', (req, res) => {
     /*
     res.set('Access-Control-Allow-Origin', `${FRONTEND_URL}`);

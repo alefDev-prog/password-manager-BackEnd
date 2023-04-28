@@ -70,19 +70,19 @@ store.on('error', function(error: Error) {
 //Middlewares
 
 app.use((req, res, next) => {
-    //res.setHeader('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
+    res.setHeader('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
     next();
   });
 
 
 app.use(express.json());
 
-/*
+
 app.use(cors({
     origin:`${FRONTEND_URL}`,
     credentials: true
 }));
-*/
+
 
 
 app.options('*', (req, res) => {
