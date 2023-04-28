@@ -34,7 +34,7 @@ store.on('error', function (error) {
 });
 //Middlewares
 app.use((req, res, next) => {
-    res.setHeader('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
+    //res.setHeader('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
     next();
 });
 app.use(express_1.default.json());
@@ -56,12 +56,11 @@ app.options('*', (req, res) => {
 app.use((0, express_session_1.default)({
     name: `${SESSION_NAME}`,
     secret: `${SESSION_SECRET}`,
-    saveUninitialized: true,
+    saveUninitialized: false,
     resave: false,
     cookie: {
         sameSite: false,
         secure: true,
-        httpOnly: true
     },
     store: store
 }));
@@ -69,7 +68,8 @@ app.use((0, express_session_1.default)({
 app.get('/', (req, res) => {
     res.send("hello");
 });
-app.get('/data', authenticate_1.default, async (req, res) => {
+app.get('/data', async (req, res) => {
+    console.log(req.session.user);
     const personId = req.query.id;
     const info = await database_1.UserModel.findById({ _id: personId });
     res.json(info);
@@ -103,8 +103,8 @@ app.post('/login', async (req, res) => {
         const CorrectPass = bcryptjs_1.default.compareSync(password, user.password);
         if (CorrectPass) {
             req.session.user = user._id;
-            await req.session.save();
-            console.log(req.session.user);
+            req.session.save();
+            console.log(req.session);
             res
                 .status(202)
                 .json(user._id);
