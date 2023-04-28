@@ -100,7 +100,7 @@ app.use(session({
     saveUninitialized: true,
     resave: false,
     cookie: {
-        sameSite: "none",
+        sameSite: false,
         secure: true,
         httpOnly: true
         
