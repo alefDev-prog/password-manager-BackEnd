@@ -124,9 +124,9 @@ app.get('/', (req, res)=> {
 });
 
 
-app.get('/data',isAuthenticated,async (req, res) => {
+app.get('/data',async (req, res) => {
     
-
+    console.log(req.session.user)
     const personId = req.query.id;
 
     const info: UserInDb | null = await UserModel.findById({_id:personId});
@@ -152,6 +152,8 @@ app.post('/register', async (req, res, next) => {
 
             req.session.user = user._id;
             await req.session.save();
+
+            
             
             res.status(200).json(user._id);
             next();
@@ -172,6 +174,8 @@ app.post('/login', async (req, res) => {
     const {username, password} = req.body;
     const user  = await UserModel.findOne({username});
 
+   
+
     if(user) {
         const CorrectPass: boolean = bcrypt.compareSync(password, user.password);
         if(CorrectPass){ 
@@ -180,9 +184,9 @@ app.post('/login', async (req, res) => {
             req.session.user = user._id;
           
 
-            await req.session.save();
+            req.session.save();
 
-            console.log(req.session.user);
+            console.log(req.session);
 
             res
             .status(202)
