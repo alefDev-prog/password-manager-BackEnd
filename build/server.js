@@ -48,7 +48,6 @@ app.get('/', (req, res) => {
     res.send("hello");
 });
 app.get('/data', authenticate_1.default, async (req, res) => {
-    console.log(req.session.user);
     const personId = req.query.id;
     const info = await database_1.UserModel.findById({ _id: personId });
     res.json(info);

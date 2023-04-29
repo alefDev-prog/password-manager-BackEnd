@@ -106,7 +106,7 @@ app.get('/', (req, res)=> {
 
 app.get('/data', isAuthenticated, async (req, res) => {
     
-    console.log(req.session.user)
+    
     const personId = req.query.id;
 
     const info: UserInDb | null = await UserModel.findById({_id:personId});
