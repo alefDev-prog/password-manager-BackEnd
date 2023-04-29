@@ -8,6 +8,7 @@ import Cryptr from "cryptr";
 import { UserInDb } from "./TS/interfaces";
 import isAuthenticated from "./middleware/authenticate";
 const MongoDBStore = require('connect-mongodb-session')(session);
+const jwt = require('jsonwebtoken')
 
 
 
@@ -33,12 +34,12 @@ declare module "express-session" {
 //env variables
 const {
     DB_URI,
-    SESSION_SECRET,
     PORT,
-    SESSION_NAME,
     CRYPT_SECRET,
     PASS_SESSION_URI,
-    FRONTEND_URL
+    FRONTEND_URL,
+    ACCESS_TOKEN_SECRET,
+    ACCESS_REFRESH_TOKEN_SECRET
 } = process.env;
 
 //Encryption
@@ -54,16 +55,6 @@ try {
 }
 
 
-//sessionsDB
-
-const store = new MongoDBStore({
-    uri: `${PASS_SESSION_URI}`
-});
-
-// Catch errors
-store.on('error', function(error: Error) {
-    console.log(error);
-  });
 
 
 
@@ -98,18 +89,6 @@ app.options('*', (req, res) => {
 
 
 
-app.use(session({
-    name: `${SESSION_NAME}`,
-    secret: `${SESSION_SECRET}`,
-    saveUninitialized: false,
-    resave: false,
-    cookie: {
-        sameSite: false,
-        secure: true,
-        
-    },
-    store: store
-}));
 
 
 
@@ -181,16 +160,17 @@ app.post('/login', async (req, res) => {
         if(CorrectPass){ 
             
             
-            req.session.user = user._id;
           
-
-            req.session.save();
-
-            console.log(req.session);
+          
+            const accesstoken = jwt.sign(user._id, ACCESS_TOKEN_SECRET)
+            const id = user._id
 
             res
             .status(202)
-            .json(user._id); 
+            .json({
+                id,
+                accesstoken
+            }); 
         }
         else {
             res.status(406).json('Password incorrect');
@@ -206,9 +186,7 @@ app.post('/login', async (req, res) => {
 
 
 app.get('/logout', isAuthenticated, (req, res) => {
-    req.session.destroy(err => {if (err) console.log(err)});
-    res.clearCookie(`${SESSION_NAME}`);
-    res.json("cleared cookie").status(200);
+    
 })
 
 

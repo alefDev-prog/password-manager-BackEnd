@@ -12,10 +12,11 @@ const express_session_1 = __importDefault(require("express-session"));
 const cryptr_1 = __importDefault(require("cryptr"));
 const authenticate_1 = __importDefault(require("./middleware/authenticate"));
 const MongoDBStore = require('connect-mongodb-session')(express_session_1.default);
+const jwt = require('jsonwebtoken');
 const dotenv = require('dotenv').config();
 const app = (0, express_1.default)();
 //env variables
-const { DB_URI, SESSION_SECRET, PORT, SESSION_NAME, CRYPT_SECRET, PASS_SESSION_URI, FRONTEND_URL } = process.env;
+const { DB_URI, PORT, CRYPT_SECRET, PASS_SESSION_URI, FRONTEND_URL, ACCESS_TOKEN_SECRET, ACCESS_REFRESH_TOKEN_SECRET } = process.env;
 //Encryption
 const cryptr = new cryptr_1.default(`${CRYPT_SECRET}`);
 //connect to db
@@ -25,14 +26,6 @@ try {
 catch (err) {
     console.log(err);
 }
-//sessionsDB
-const store = new MongoDBStore({
-    uri: `${PASS_SESSION_URI}`
-});
-// Catch errors
-store.on('error', function (error) {
-    console.log(error);
-});
 //Middlewares
 app.use((req, res, next) => {
     res.setHeader('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
@@ -44,30 +37,17 @@ app.use((0, cors_1.default)({
     credentials: true
 }));
 app.options('*', (req, res) => {
-    /*
     res.set('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
     res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
     res.set('Access-Control-Allow-Credentials', 'true');
-    */
     res.status(200).send();
 });
-app.use((0, express_session_1.default)({
-    name: `${SESSION_NAME}`,
-    secret: `${SESSION_SECRET}`,
-    saveUninitialized: false,
-    resave: false,
-    cookie: {
-        sameSite: false,
-        secure: true,
-    },
-    store: store
-}));
 //requests
 app.get('/', (req, res) => {
     res.send("hello");
 });
-app.get('/data', async (req, res) => {
+app.get('/data', authenticate_1.default, async (req, res) => {
     console.log(req.session.user);
     const personId = req.query.id;
     const info = await database_1.UserModel.findById({ _id: personId });
@@ -101,12 +81,14 @@ app.post('/login', async (req, res) => {
     if (user) {
         const CorrectPass = bcryptjs_1.default.compareSync(password, user.password);
         if (CorrectPass) {
-            req.session.user = user._id;
-            req.session.save();
-            console.log(req.session);
+            const accesstoken = jwt.sign(user._id, ACCESS_TOKEN_SECRET);
+            const id = user._id;
             res
                 .status(202)
-                .json(user._id);
+                .json({
+                id,
+                accesstoken
+            });
         }
         else {
             res.status(406).json('Password incorrect');
@@ -117,10 +99,6 @@ app.post('/login', async (req, res) => {
     }
 });
 app.get('/logout', authenticate_1.default, (req, res) => {
-    req.session.destroy(err => { if (err)
-        console.log(err); });
-    res.clearCookie(`${SESSION_NAME}`);
-    res.json("cleared cookie").status(200);
 });
 app.post('/add', authenticate_1.default, async (req, res) => {
     const { newAccount, newPass, userId } = req.body;
