@@ -130,7 +130,7 @@ app.post('/register', async (req, res, next) => {
                 password: bcrypt.hashSync(password)
             });
 
-            const accesstoken = jwt.sign(user.toJSON(), ACCESS_TOKEN_SECRET)
+            const accesstoken = jwt.sign(user.toJSON(), ACCESS_TOKEN_SECRET, {expiresIn: 900})
             const id = user._id
 
             res
