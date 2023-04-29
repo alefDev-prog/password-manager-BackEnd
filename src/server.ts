@@ -77,11 +77,12 @@ app.use(cors({
 
 
 app.options('*', (req, res) => {
-    
+   
     res.set('Access-Control-Allow-Origin', `${FRONTEND_URL}`);
     res.set('Access-Control-Allow-Methods', 'GET, POST, PUT, DELETE');
     res.set('Access-Control-Allow-Headers', 'Content-Type, Authorization, Cookie');
     res.set('Access-Control-Allow-Credentials', 'true');
+    
     
     res.status(200).send();
   });
@@ -162,7 +163,7 @@ app.post('/login', async (req, res) => {
             
           
           
-            const accesstoken = jwt.sign(user._id, ACCESS_TOKEN_SECRET)
+            const accesstoken = jwt.sign(user.toJSON(), ACCESS_TOKEN_SECRET)
             const id = user._id
 
             res

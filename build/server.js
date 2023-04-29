@@ -81,7 +81,7 @@ app.post('/login', async (req, res) => {
     if (user) {
         const CorrectPass = bcryptjs_1.default.compareSync(password, user.password);
         if (CorrectPass) {
-            const accesstoken = jwt.sign(user._id, ACCESS_TOKEN_SECRET);
+            const accesstoken = jwt.sign(user.toJSON(), ACCESS_TOKEN_SECRET);
             const id = user._id;
             res
                 .status(202)
