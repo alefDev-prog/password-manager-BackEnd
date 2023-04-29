@@ -130,13 +130,15 @@ app.post('/register', async (req, res, next) => {
                 password: bcrypt.hashSync(password)
             });
 
-            req.session.user = user._id;
-            await req.session.save();
+            const accesstoken = jwt.sign(user.toJSON(), ACCESS_TOKEN_SECRET)
+            const id = user._id
 
-            
-            
-            res.status(200).json(user._id);
-            next();
+            res
+            .status(202)
+            .json({
+                id,
+                accesstoken
+            }); 
             
         } catch(e) {
             console.log(e);
