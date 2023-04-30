@@ -74,7 +74,7 @@ app.post('/register', async (req, res, next) => {
         }
         catch (e) {
             console.log(e);
-            res.json("Failed");
+            res.json("Failed").status(500);
         }
     }
 });
@@ -102,11 +102,10 @@ app.post('/login', async (req, res) => {
     }
 });
 app.get('/logout', authenticate_1.default, (req, res) => {
+    res.json("Not available");
 });
 app.post('/add', authenticate_1.default, async (req, res) => {
     const { newAccount, newPass, userId } = req.body;
-    console.log(newAccount);
-    console.log(userId);
     try {
         const user = await database_1.UserModel.findById({ _id: userId });
         user === null || user === void 0 ? void 0 : user.account.push({
@@ -116,15 +115,14 @@ app.post('/add', authenticate_1.default, async (req, res) => {
         });
         user === null || user === void 0 ? void 0 : user.save();
     }
-    catch (err) {
-        console.log(err);
+    catch (e) {
+        console.log(e);
+        res.status(500).json("DB not answering");
     }
     res.json("All OK");
 });
 app.post('/getpass', authenticate_1.default, async (req, res) => {
     const { userId, accountId } = req.body;
-    console.log(userId);
-    console.log(accountId);
     let password;
     try {
         const user = await database_1.UserModel.findById({
@@ -138,8 +136,9 @@ app.post('/getpass', authenticate_1.default, async (req, res) => {
                 password = cryptr.decrypt(response[0].AccountPassword);
         }
     }
-    catch (err) {
-        console.log(err);
+    catch (e) {
+        console.log(e);
+        res.status(500).json("DB not answering");
     }
     if (password)
         res.json(password);
@@ -151,8 +150,8 @@ app.delete('/delete', authenticate_1.default, async (req, res) => {
     try {
         await database_1.UserModel.findOneAndUpdate({ _id: userId }, { $pull: { account: { _id: accountId } } });
     }
-    catch (err) {
-        console.log(err);
+    catch (e) {
+        console.log(e);
         res.json("Not OK").status(400);
         return;
     }

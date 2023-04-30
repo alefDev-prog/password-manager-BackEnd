@@ -141,8 +141,8 @@ app.post('/register', async (req, res, next) => {
             }); 
             
         } catch(e) {
-            console.log(e);
-            res.json("Failed");
+            console.log(e)
+            res.json("Failed").status(500);
         }
     
     }
@@ -176,6 +176,7 @@ app.post('/login', async (req, res) => {
             }); 
         }
         else {
+            
             res.status(406).json('Password incorrect');
         }
         
@@ -189,14 +190,13 @@ app.post('/login', async (req, res) => {
 
 
 app.get('/logout', isAuthenticated, (req, res) => {
-    
+    res.json("Not available")
 })
 
 
 app.post('/add', isAuthenticated, async (req, res) => {
     const {newAccount, newPass, userId} = req.body;
-    console.log(newAccount);
-    console.log(userId);
+
     try {
         const user = await UserModel.findById({_id:userId});
         user?.account.push({
@@ -205,8 +205,10 @@ app.post('/add', isAuthenticated, async (req, res) => {
             _id: new mongoose.Types.ObjectId()
         });
         user?.save();
-    }catch(err) {
-        console.log(err);
+    }catch(e) {
+        console.log(e)
+        res.status(500).json("DB not answering")
+       
     }
 
     res.json("All OK");
@@ -216,8 +218,7 @@ app.post('/add', isAuthenticated, async (req, res) => {
 
 app.post('/getpass', isAuthenticated, async (req, res) => {
     const {userId, accountId} = req.body;
-    console.log(userId);
-    console.log(accountId);
+
     let password: string | undefined;
 
     try {
@@ -233,8 +234,9 @@ app.post('/getpass', isAuthenticated, async (req, res) => {
            if(response[0].AccountPassword !== undefined) password = cryptr.decrypt(response[0].AccountPassword);
         }
 
-    } catch(err) {
-        console.log(err);
+    } catch(e) {
+        console.log(e)
+        res.status(500).json("DB not answering")
     }
 
     if(password) res.json(password);
@@ -246,8 +248,8 @@ app.delete('/delete', isAuthenticated, async(req, res) => {
     const {userId, accountId} = req.body;
     try {
         await UserModel.findOneAndUpdate({_id:userId}, {$pull: {account: {_id: accountId}}});
-    } catch(err) {
-        console.log(err);
+    } catch(e) {
+        console.log(e)
         res.json("Not OK").status(400);
         return;
     }
